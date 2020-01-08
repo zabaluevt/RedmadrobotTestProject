@@ -11,7 +11,7 @@ import Alamofire
 
 public class Network {
     
-    static func get(urlParams: String = "", queryParams: [String: String], completHandler: @escaping ((_ output: ImagesModel) -> Void),
+    static func get<T: Decodable>(type: T.Type, urlParams: String = "", queryParams: [String: String], completHandler: @escaping ((_ output: T) -> Void),
                     errorHandler: @escaping ((_ error: Error) -> Void)) {
         let url = "https://api.unsplash.com/"
         let clientId = "5a1ac4b90d9b586bb9f98b5a3d4959f08030ee909150ae52fb84ba934b96ee11"
@@ -23,25 +23,23 @@ public class Network {
                                      headers: nil,
                                      interceptor: nil)
         
-         dataRequest.responseData(completionHandler: { (dataResponse) in
-             if let error = dataResponse.error {
-                 print("Error!!! \(error)")
-                 errorHandler(error)
-                 return
-             }
-             
-             guard let data = dataResponse.data else { return }
-    
-             let decoder = JSONDecoder()
-             do {
-                 let output = try decoder.decode(ImagesModel.self, from: data)
-                 completHandler(output)
-             }
-             catch (let error) {
-                 print("Error!!! \(error)")
-                 errorHandler(error)
-             }
-         })
+        dataRequest.responseData(completionHandler: { (dataResponse) in
+            if let error = dataResponse.error {
+             errorHandler(error)
+             return
+            }
+
+            guard let data = dataResponse.data else { return }
+
+            let decoder = JSONDecoder()
+            do {
+             let output = try decoder.decode(T.self, from: data)
+             completHandler(output)
+            }
+            catch (let error) {
+             errorHandler(error)
+            }
+        })
     }
 }
 

@@ -16,6 +16,8 @@
 		7B8C086223B9DDAF0048C494 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8C086123B9DDAF0048C494 /* SearchViewController.swift */; };
 		7B8C086423BA07720048C494 /* PhotosCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8C086323BA07720048C494 /* PhotosCollectionViewController.swift */; };
 		7BA99D5523C3676F00EEB073 /* CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA99D5423C3676F00EEB073 /* CollectionViewCell.swift */; };
+		7BA99D5723C6432D00EEB073 /* RandomPhotoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA99D5623C6432D00EEB073 /* RandomPhotoModel.swift */; };
+		7BA99D5B23C6453800EEB073 /* Urls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA99D5A23C6453800EEB073 /* Urls.swift */; };
 		7BE06A9923A9452600F91EE1 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE06A9823A9452500F91EE1 /* Network.swift */; };
 		7BE06A9B23A9457600F91EE1 /* ImagesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE06A9A23A9457600F91EE1 /* ImagesModel.swift */; };
 		B218C65332504FC16A96BDD3 /* Pods_RedmadrobotTestProject.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C2E157FBB527BE4F92D2CC /* Pods_RedmadrobotTestProject.framework */; };
@@ -36,6 +38,8 @@
 		7B8C086123B9DDAF0048C494 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		7B8C086323BA07720048C494 /* PhotosCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosCollectionViewController.swift; sourceTree = "<group>"; };
 		7BA99D5423C3676F00EEB073 /* CollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCell.swift; sourceTree = "<group>"; };
+		7BA99D5623C6432D00EEB073 /* RandomPhotoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomPhotoModel.swift; sourceTree = "<group>"; };
+		7BA99D5A23C6453800EEB073 /* Urls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Urls.swift; sourceTree = "<group>"; };
 		7BE06A9823A9452500F91EE1 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		7BE06A9A23A9457600F91EE1 /* ImagesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -82,7 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				7BA99D5323C3674800EEB073 /* Cells */,
-				7B614B3823A943360016E8EF /* Model */,
+				7B614B3823A943360016E8EF /* Models */,
 				7B614B3923A9433A0016E8EF /* Network */,
 				7B614B3A23A943530016E8EF /* ViewControllers */,
 				7B083AD223A7EC97009D8296 /* AppDelegate.swift */,
@@ -95,12 +99,14 @@
 			path = RedmadrobotTestProject;
 			sourceTree = "<group>";
 		};
-		7B614B3823A943360016E8EF /* Model */ = {
+		7B614B3823A943360016E8EF /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				7BE06A9A23A9457600F91EE1 /* ImagesModel.swift */,
+				7BA99D5623C6432D00EEB073 /* RandomPhotoModel.swift */,
+				7BA99D5A23C6453800EEB073 /* Urls.swift */,
 			);
-			path = Model;
+			path = Models;
 			sourceTree = "<group>";
 		};
 		7B614B3923A9433A0016E8EF /* Network */ = {
@@ -254,6 +260,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B8C086223B9DDAF0048C494 /* SearchViewController.swift in Sources */,
+				7BA99D5723C6432D00EEB073 /* RandomPhotoModel.swift in Sources */,
 				7B083AD723A7EC97009D8296 /* MainViewController.swift in Sources */,
 				7BA99D5523C3676F00EEB073 /* CollectionViewCell.swift in Sources */,
 				7B083AD323A7EC97009D8296 /* AppDelegate.swift in Sources */,
@@ -261,6 +268,7 @@
 				7BE06A9923A9452600F91EE1 /* Network.swift in Sources */,
 				7B083AD523A7EC97009D8296 /* SceneDelegate.swift in Sources */,
 				7BE06A9B23A9457600F91EE1 /* ImagesModel.swift in Sources */,
+				7BA99D5B23C6453800EEB073 /* Urls.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

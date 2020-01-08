@@ -35,20 +35,20 @@ class SearchViewController: UIViewController {
         
     }
     
-    func initData() {
-        Network.get(
-            urlParams: "/search/photos",
-            queryParams: ["query": "home"],
-            completHandler: { response in
-                print(response)
-            },
-            errorHandler: { error in
-                let alert = UIAlertController(title: "Ошибка", message: "Произошла ошибка получения данных с сервера, попробуйте позже.", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "Хорошо", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-            }
-        )
-    }
+//    func initData() {
+//        Network.get(
+//            urlParams: "/search/photos",
+//            queryParams: ["query": "home"],
+//            completHandler: { response in
+//                print(response)
+//            },
+//            errorHandler: { error in
+//                let alert = UIAlertController(title: "Ошибка", message: "Произошла ошибка получения данных с сервера, попробуйте позже.", preferredStyle: UIAlertController.Style.alert)
+//                alert.addAction(UIAlertAction(title: "Хорошо", style: UIAlertAction.Style.default, handler: nil))
+//                self.present(alert, animated: true, completion: nil)
+//            }
+//        )
+//    }
 }
 
 // MARK: SearchView
@@ -61,7 +61,7 @@ extension SearchViewController: UISearchResultsUpdating {
         })
         
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: {(_) in
-            self.initData()
+//            self.initData()
             self.tableView.reloadData()
         })
     }

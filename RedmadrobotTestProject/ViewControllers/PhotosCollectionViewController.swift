@@ -14,6 +14,7 @@ class PhotosCollectionViewController: UICollectionViewController {
     
     private var timer: Timer?
     private var photos = [Results]()
+    private var searchedText = ""
     private var filteredPhotos = [Results]()
     private var numberOfColumns: CGFloat = 2
     private var page: Int = 0
@@ -23,20 +24,18 @@ class PhotosCollectionViewController: UICollectionViewController {
         
         setupSearchBar()
         setupCollectionView()
-        makeRequest()
     }
     
     func setupSearchBar() {
         let searchController = UISearchController(searchResultsController: nil)
         navigationItem.searchController = searchController
-        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.hidesNavigationBarDuringPresentation = true
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search"
         searchController.searchBar.delegate = self
     }
     
     func setupCollectionView() {
-//        collectionView.backgroundColor = .black
         collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "CollectionViewCell")
 //        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "collectionViewIdentifier")
 //        collectionView.contentInset = UIEdgeInsets(top: 16, left: 16, bottom: 40, right: 16)
@@ -44,11 +43,12 @@ class PhotosCollectionViewController: UICollectionViewController {
         
     }
     
-    func makeRequest() {
+    func makeRequest(searchText: String) {
         page += 1
         Network.get(
+            type: ImagesModel.self,
             urlParams: "/search/photos",
-            queryParams: ["query": "home", "page": String(page), "per_page": String(15)],
+            queryParams: ["query": searchText, "page": String(page), "per_page": String(15)],
             completHandler: { response in
                 self.photos += response.results ?? []
                 self.collectionView.reloadData()
@@ -62,6 +62,7 @@ class PhotosCollectionViewController: UICollectionViewController {
     }
     
     @objc func dismissFullscreenImage(_ sender: UITapGestureRecognizer) {
+        self.navigationController?.isNavigationBarHidden = false
         self.tabBarController?.tabBar.isHidden = false
         sender.view?.removeFromSuperview()
     }
@@ -70,7 +71,7 @@ class PhotosCollectionViewController: UICollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         if (indexPath.row == photos.count - 1 ) {
-            makeRequest()
+            makeRequest(searchText: self.searchedText)
         }
     }
     
@@ -89,6 +90,7 @@ class PhotosCollectionViewController: UICollectionViewController {
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissFullscreenImage))
         newImageView.addGestureRecognizer(tap)
         self.view.addSubview(newImageView)
+        self.navigationController?.isNavigationBarHidden = true
         self.tabBarController?.tabBar.isHidden = true
     }
     
@@ -97,25 +99,14 @@ class PhotosCollectionViewController: UICollectionViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as! CollectionViewCell
         
         guard !self.photos.isEmpty, let urlKey = self.photos[indexPath.row].urls?.thumb else { return cell }
         
-        if let url = URL(string: urlKey) {
-            do {
-                let data = try Data(contentsOf: url)
-                let image = UIImage(data: data)
-                let imageView = UIImageView(image: image)
-                
-                imageView.layer.cornerRadius = 5.0
-                imageView.clipsToBounds = true
-                
-                imageView.center = CGPoint(x: cell.frame.size.width / 2,
-                y: cell.frame.size.height / 2)
-                
-                cell.contentView.addSubview(imageView)
-            } catch _ {}
-        }
+        guard let data = try? Data(contentsOf: URL(string: urlKey)!) else { return cell }
+        
+        cell.photo = UIImage(data: data)
+
         return cell
     }
 }
@@ -123,22 +114,31 @@ class PhotosCollectionViewController: UICollectionViewController {
 // MARK: UISearchBarDelegate
 
 extension PhotosCollectionViewController: UISearchBarDelegate {
-    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+       timer?.invalidate()
+       timer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: false, block: { (_) in
+            self.searchedText = searchText
+            self.makeRequest(searchText: searchText)
+       })
+    }
 }
 
 // MARK: UICollectionViewDelegateFlowLayout
 
 extension PhotosCollectionViewController: UICollectionViewDelegateFlowLayout {
     internal func collectionView(_: UICollectionView, layout: UICollectionViewLayout, sizeForItemAt: IndexPath) -> CGSize {
+        let ratio = CGFloat(photos[sizeForItemAt.row].width!) / (UIScreen.main.bounds.width - numberOfColumns * 8) * numberOfColumns
+        let width = CGFloat(photos[sizeForItemAt.row].width!) / ratio
+        let height = CGFloat(photos[sizeForItemAt.row].height!) / ratio
         
-        // отступы по 8 с каждой стороны
-        let screenWidth = UIScreen.main.bounds.width - view.safeAreaInsets.left - view.safeAreaInsets.right - ((numberOfColumns - 1) * 16)
-        return CGSize(width: screenWidth / numberOfColumns, height: screenWidth / numberOfColumns)
+        return CGSize(width: width, height: height)
     }
     
 //    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
 //           return UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
 //       }
+//
 }
+
 
 
