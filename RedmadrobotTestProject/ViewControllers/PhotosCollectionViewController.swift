@@ -44,7 +44,7 @@ class PhotosCollectionViewController: UICollectionViewController {
     }
     
     func makeRequest(searchText: String, isNewPage: Bool = false) {
-        page = isNewPage ? page + 1 : 0
+        page = isNewPage ? page + 1 : 1
         
         if !isNewPage {
             self.photos = []
@@ -57,6 +57,10 @@ class PhotosCollectionViewController: UICollectionViewController {
             completHandler: { response in
                 self.photos += response.results ?? []
                 self.collectionView.reloadData()
+                
+                if !isNewPage {
+                    self.collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
+                }
             },
             errorHandler: { error in
                 let alert = UIAlertController(title: "Ошибка", message: "Произошла ошибка получения данных с сервера, попробуйте позже.", preferredStyle: UIAlertController.Style.alert)
@@ -120,8 +124,9 @@ class PhotosCollectionViewController: UICollectionViewController {
 
 extension PhotosCollectionViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-       timer?.invalidate()
-       timer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: false, block: { (_) in
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: false, block: { (_) in
+            guard searchText != "" else { return }
             self.searchedText = searchText
             self.makeRequest(searchText: searchText)
        })
