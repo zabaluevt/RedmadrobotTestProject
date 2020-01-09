@@ -9,7 +9,6 @@
 import UIKit
 
 class CollectionViewCell: UICollectionViewCell {
-
     let imageView: UIImageView = {
        let imageView = UIImageView()
        imageView.translatesAutoresizingMaskIntoConstraints = false

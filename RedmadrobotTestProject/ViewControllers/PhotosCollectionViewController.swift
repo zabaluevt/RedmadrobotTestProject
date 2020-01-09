@@ -15,7 +15,6 @@ class PhotosCollectionViewController: UICollectionViewController {
     private var timer: Timer?
     private var photos = [Results]()
     private var searchedText = ""
-    private var filteredPhotos = [Results]()
     private var numberOfColumns: CGFloat = 2
     private var page: Int = 1
     
@@ -37,37 +36,60 @@ class PhotosCollectionViewController: UICollectionViewController {
     
     func setupCollectionView() {
         collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "CollectionViewCell")
-//        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "collectionViewIdentifier")
-//        collectionView.contentInset = UIEdgeInsets(top: 16, left: 16, bottom: 40, right: 16)
-//        collectionView.layoutMargins = UIEdgeInsets(top: 0, left: 60, bottom: 0, right: 60)
+        //        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "collectionViewIdentifier")
+        //        collectionView.contentInset = UIEdgeInsets(top: 16, left: 16, bottom: 40, right: 16)
+        //        collectionView.layoutMargins = UIEdgeInsets(top: 0, left: 60, bottom: 0, right: 60)
         
     }
     
     func makeRequest(searchText: String, isNewPage: Bool = false) {
         page = isNewPage ? page + 1 : 1
         
-        if !isNewPage {
-            self.photos = []
-        }
-        
         Network.get(
             type: ImagesModel.self,
             urlParams: "/search/photos",
             queryParams: ["query": searchText, "page": String(page), "per_page": String(15)],
             completHandler: { response in
-                self.photos += response.results ?? []
-                self.collectionView.reloadData()
-                
-                if !isNewPage {
+                if isNewPage {
+                    self.photos += response.results ?? []
+                    self.collectionView.reloadData()
+                } else {
+                    self.photos = response.results ?? []
+                    self.collectionView.reloadData()
                     self.collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
                 }
-            },
+        },
             errorHandler: { error in
                 let alert = UIAlertController(title: "Ошибка", message: "Произошла ошибка получения данных с сервера, попробуйте позже.", preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "Хорошо", style: UIAlertAction.Style.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
+        })
+    }
+    
+    func openImageForFullScreen(index: Int) {
+        guard let uri = photos[index].urls?.regular else { return }
+        guard let url = URL(string: uri) else { return }
+        
+        let newImageView = UIImageView()
+        newImageView.frame = UIScreen.main.bounds
+        newImageView.backgroundColor = .black
+        newImageView.contentMode = .scaleAspectFit
+        newImageView.isUserInteractionEnabled = true
+        
+        DispatchQueue.global(qos: .utility).async {
+            if let data = try? Data(contentsOf: url) {
+                DispatchQueue.main.async {
+                    newImageView.image = UIImage(data: data)
+                }
             }
-        )
+        }
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissFullscreenImage))
+        newImageView.addGestureRecognizer(tap)
+        
+        self.view.addSubview(newImageView)
+        self.navigationController?.isNavigationBarHidden = true
+        self.tabBarController?.tabBar.isHidden = true
     }
     
     @objc func dismissFullscreenImage(_ sender: UITapGestureRecognizer) {
@@ -85,22 +107,22 @@ class PhotosCollectionViewController: UICollectionViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let uri = photos[indexPath.row].urls?.regular else { return }
-        guard let url = URL(string: uri) else { return }
+        let item = photos[indexPath.row]
         
-        // TODO: - Добавить лоудер пока загружается фото
-        guard let data = try? Data(contentsOf: url) else { return }
+        let heightMessage = (item.height != nil) ? "Высота \(item.height!)px\n" : ""
+        let widthMessage = (item.width != nil) ? "Ширина \(item.width!)px\n": ""
+        let descriptionMessage = (item.description != nil) ? "\(item.description!)" : ""
+        let message = heightMessage + widthMessage + descriptionMessage
         
-        let newImageView = UIImageView(image: UIImage(data: data))
-        newImageView.frame = UIScreen.main.bounds
-        newImageView.backgroundColor = .black
-        newImageView.contentMode = .scaleAspectFit
-        newImageView.isUserInteractionEnabled = true
-        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissFullscreenImage))
-        newImageView.addGestureRecognizer(tap)
-        self.view.addSubview(newImageView)
-        self.navigationController?.isNavigationBarHidden = true
-        self.tabBarController?.tabBar.isHidden = true
+        let alert = UIAlertController(title: "", message: "", preferredStyle: UIAlertController.Style.actionSheet)
+        let messageFont = [kCTFontAttributeName: UIFont(name: "Avenir-Roman", size: 18.0)!]
+        let messageAttributedString = NSMutableAttributedString(string: message, attributes: messageFont as [NSAttributedString.Key: Any])
+        alert.setValue(messageAttributedString, forKey: "attributedMessage")
+       
+        alert.addAction(UIAlertAction(title: "Открыть картинку", style: UIAlertAction.Style.default, handler: {_ in self.openImageForFullScreen(index: indexPath.row)}))
+        alert.addAction(UIAlertAction(title: "Закрыть", style: UIAlertAction.Style.destructive, handler: nil))
+               
+        self.present(alert, animated: true, completion: nil)
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -115,7 +137,7 @@ class PhotosCollectionViewController: UICollectionViewController {
         guard let data = try? Data(contentsOf: URL(string: urlKey)!) else { return cell }
         
         cell.photo = UIImage(data: data)
-
+        
         return cell
     }
 }
@@ -129,7 +151,7 @@ extension PhotosCollectionViewController: UISearchBarDelegate {
             guard searchText != "" else { return }
             self.searchedText = searchText
             self.makeRequest(searchText: searchText)
-       })
+        })
     }
 }
 
@@ -144,10 +166,10 @@ extension PhotosCollectionViewController: UICollectionViewDelegateFlowLayout {
         return CGSize(width: width, height: height)
     }
     
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-//           return UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-//       }
-//
+    //    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+    //           return UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+    //       }
+    //
 }
 
 
