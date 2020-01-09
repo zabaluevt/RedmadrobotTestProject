@@ -17,7 +17,7 @@ class PhotosCollectionViewController: UICollectionViewController {
     private var searchedText = ""
     private var filteredPhotos = [Results]()
     private var numberOfColumns: CGFloat = 2
-    private var page: Int = 0
+    private var page: Int = 1
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,8 +43,13 @@ class PhotosCollectionViewController: UICollectionViewController {
         
     }
     
-    func makeRequest(searchText: String) {
-        page += 1
+    func makeRequest(searchText: String, isNewPage: Bool = false) {
+        page = isNewPage ? page + 1 : 0
+        
+        if !isNewPage {
+            self.photos = []
+        }
+        
         Network.get(
             type: ImagesModel.self,
             urlParams: "/search/photos",
@@ -71,7 +76,7 @@ class PhotosCollectionViewController: UICollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         if (indexPath.row == photos.count - 1 ) {
-            makeRequest(searchText: self.searchedText)
+            makeRequest(searchText: self.searchedText, isNewPage: true)
         }
     }
     
