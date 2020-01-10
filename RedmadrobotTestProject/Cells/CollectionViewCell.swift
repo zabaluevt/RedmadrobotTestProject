@@ -18,17 +18,6 @@ class CollectionViewCell: UICollectionViewCell {
         return imageView
     }()
     
-//    private let badge: UIView = {
-//        let badge = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-//        badge.backgroundColor = .red
-//        badge.layer.cornerRadius = 10.0
-//        badge.layer.borderColor = UIColor.green.cgColor
-//        badge.layer.borderWidth = 10
-//
-//        badge.translatesAutoresizingMaskIntoConstraints = false
-//        return badge
-//    }()
-    
     public var photo: UIImage? {
         didSet {
             guard photo != nil else { return }
@@ -39,7 +28,6 @@ class CollectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         initImageView()
-//        initBadges()
     }
 
     required init?(coder: NSCoder) {
@@ -58,10 +46,4 @@ class CollectionViewCell: UICollectionViewCell {
         imageView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
         imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
     }
-    
-//    fileprivate func initBadges() {
-//        addSubview(badge)
-//        badge.bottomAnchor.constraint(equalTo: imageView.bottomAnchor, constant: -10).isActive = true
-//        badge.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: -10).isActive = true
-//    }
 }

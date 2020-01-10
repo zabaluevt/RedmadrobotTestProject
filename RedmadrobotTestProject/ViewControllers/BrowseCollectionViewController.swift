@@ -59,9 +59,7 @@ class BrowseCollectionViewController: UIViewController {
                 self.renderPhotos(response)
         },
             errorHandler: { error in
-                let alert = UIAlertController(title: "Ошибка", message: "Произошла ошибка получения данных с сервера, попробуйте позже.", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "Хорошо", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
+                Alert.show(self)
         }
         )
     }

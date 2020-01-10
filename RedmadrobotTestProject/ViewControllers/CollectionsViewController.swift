@@ -9,9 +9,12 @@
 import UIKit
 
 class CollectionsViewController: UICollectionViewController {
-    fileprivate var collections = [CollectionsModel]()
-    fileprivate var numberOfColumns: CGFloat = 2
-    fileprivate var page = 1
+    private var collections = [CollectionsModel]()
+    private var page = 1
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,14 +48,12 @@ class CollectionsViewController: UICollectionViewController {
         Network.get(
             type: [CollectionsModel].self,
             urlParams: "/collections",
-            queryParams: ["page" : String(page)],
+            queryParams: ["page" : String(page), "per_page": String(15)],
             completHandler: { response in
                 self.renderPhotos(response)
         },
             errorHandler: { error in
-                let alert = UIAlertController(title: "Ошибка", message: "Произошла ошибка получения данных с сервера, попробуйте позже.", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "Хорошо", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
+                Alert.show(self)
         }
         )
     }
@@ -85,27 +86,24 @@ class CollectionsViewController: UICollectionViewController {
         let vc = BrowseCollectionViewController()
         vc.photosUrl = photosUrl
         
-        self.present(vc, animated: true, completion: nil
-        )
+        self.present(vc, animated: true, completion: nil)
     }
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-           if (indexPath.row == collections.count - 1 ) {
+        if (indexPath.row == collections.count - 1 ) {
             page += 1
             makeRequest(page: page)
-           }
-       }
+        }
+    }
 }
 
 // MARK: UICollectionViewDelegateFlowLayout
 
 extension CollectionsViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_: UICollectionView, layout: UICollectionViewLayout, sizeForItemAt: IndexPath) -> CGSize {
-       
         let ratio = CGFloat((collections[sizeForItemAt.row].cover_photo?.width!)!) / (UIScreen.main.bounds.width - Settings.numberOfColumns * 8) * Settings.numberOfColumns
         let width = CGFloat((collections[sizeForItemAt.row].cover_photo?.width!)!) / ratio
         let height = CGFloat((collections[sizeForItemAt.row].cover_photo?.height!)!) / ratio
-        
         return CGSize(width: width, height: height)
     }
 }

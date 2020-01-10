@@ -15,6 +15,7 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         
         makeRequest()
+//        view.backgroundColor = .black
     }
     
     func renderPhoto(imageUrl: String) {
@@ -29,7 +30,6 @@ class MainViewController: UIViewController {
                if let data = try? Data(contentsOf: url){
                    DispatchQueue.main.async {
                        imageView.image = UIImage(data: data)
-
                    }
                }
            }
@@ -52,9 +52,7 @@ class MainViewController: UIViewController {
                 self.renderPhoto(imageUrl: uri)
             },
             errorHandler: { error in
-                let alert = UIAlertController(title: "Ошибка", message: "Произошла ошибка получения данных с сервера, попробуйте позже.", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "Хорошо", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
+                Alert.show(self)
             }
         )
     }

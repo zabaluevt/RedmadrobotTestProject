@@ -33,14 +33,12 @@ class PhotosCollectionViewController: UICollectionViewController {
     
     fileprivate func setupCollectionView() {
         collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "CollectionViewCell")
-        collectionView.backgroundColor = .black
+//        collectionView.backgroundColor = .black
     }
     
     // TODO: - Подумать как вынести в общий файл
     fileprivate func renderPhotos(_ photosResults: [Results]) {
-        if (photosResults.isEmpty) {
-            return
-        }
+        if (photosResults.isEmpty) { return }
         
         var i = 0
         
@@ -72,9 +70,7 @@ class PhotosCollectionViewController: UICollectionViewController {
                 }
         },
             errorHandler: { error in
-                let alert = UIAlertController(title: "Ошибка", message: "Произошла ошибка получения данных с сервера, попробуйте позже.", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "Хорошо", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
+                Alert.show(self)
         })
     }
     

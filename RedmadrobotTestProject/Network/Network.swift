@@ -10,7 +10,6 @@ import Foundation
 import Alamofire
 
 public class Network {
-    
     static func get<T: Decodable>(type: T.Type,
                                   url: String = Settings.mainUrl,
                                   urlParams: String = "",
