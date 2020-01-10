@@ -50,7 +50,10 @@ class CollectionsViewController: UICollectionViewController {
             urlParams: "/collections",
             queryParams: ["page" : String(page), "per_page": String(15)],
             completHandler: { response in
-                self.renderPhotos(response)
+                if (page == 1) {
+                    self.collections = response
+                    self.collectionView.reloadData()
+                } else { self.renderPhotos(response) }
         },
             errorHandler: { error in
                 Alert.show(self)
