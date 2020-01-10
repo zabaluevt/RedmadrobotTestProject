@@ -11,10 +11,13 @@ import Alamofire
 
 public class Network {
     
-    static func get<T: Decodable>(type: T.Type, urlParams: String = "", queryParams: [String: String], completHandler: @escaping ((_ output: T) -> Void),
-                    errorHandler: @escaping ((_ error: Error) -> Void)) {
-        let url = "https://api.unsplash.com/"
-        let clientId = "5a1ac4b90d9b586bb9f98b5a3d4959f08030ee909150ae52fb84ba934b96ee11"
+    static func get<T: Decodable>(type: T.Type,
+                                  url: String = Settings.mainUrl,
+                                  urlParams: String = "",
+                                  queryParams: [String: String],
+                                  completHandler: @escaping ((_ output: T) -> Void),
+                                  errorHandler: @escaping ((_ error: Error) -> Void)) {
+        let clientId = Settings.apiKey
         let params = queryParams.merging(["client_id" : clientId], uniquingKeysWith: {(current, _) in current })
         let dataRequest = AF.request(url + urlParams,
                                      method: .get,
@@ -25,19 +28,18 @@ public class Network {
         
         dataRequest.responseData(completionHandler: { (dataResponse) in
             if let error = dataResponse.error {
-             errorHandler(error)
-             return
+                errorHandler(error)
+                return
             }
-
+            
             guard let data = dataResponse.data else { return }
-
             let decoder = JSONDecoder()
             do {
-             let output = try decoder.decode(T.self, from: data)
-             completHandler(output)
+                let output = try decoder.decode(T.self, from: data)
+                completHandler(output)
             }
             catch (let error) {
-             errorHandler(error)
+                errorHandler(error)
             }
         })
     }

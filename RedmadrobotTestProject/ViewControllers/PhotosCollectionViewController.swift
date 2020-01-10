@@ -10,12 +10,9 @@ import UIKit
 
 class PhotosCollectionViewController: UICollectionViewController {
     
-    @IBOutlet weak var tableView: UITableView!
-    
     private var timer: Timer?
     private var photos = [Results]()
     private var searchedText = ""
-    private var numberOfColumns: CGFloat = 2
     private var page: Int = 1
     
     override func viewDidLoad() {
@@ -34,15 +31,30 @@ class PhotosCollectionViewController: UICollectionViewController {
         searchController.searchBar.delegate = self
     }
     
-    func setupCollectionView() {
+    fileprivate func setupCollectionView() {
         collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "CollectionViewCell")
-        //        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "collectionViewIdentifier")
-        //        collectionView.contentInset = UIEdgeInsets(top: 16, left: 16, bottom: 40, right: 16)
-        //        collectionView.layoutMargins = UIEdgeInsets(top: 0, left: 60, bottom: 0, right: 60)
-        
+        collectionView.backgroundColor = .black
     }
     
-    func makeRequest(searchText: String, isNewPage: Bool = false) {
+    // TODO: - Подумать как вынести в общий файл
+    fileprivate func renderPhotos(_ photosResults: [Results]) {
+        if (photosResults.isEmpty) {
+            return
+        }
+        
+        var i = 0
+        
+        repeat {
+            self.photos.append(photosResults[i])
+            self.collectionView.performBatchUpdates({
+                self.collectionView.insertItems(at: [IndexPath(item: self.photos.count - 1, section: 0)])
+            }, completion: nil)
+            
+            i += 1
+        } while i < photosResults.count
+    }
+    
+    fileprivate func makeRequest(searchText: String, isNewPage: Bool = false) {
         page = isNewPage ? page + 1 : 1
         
         Network.get(
@@ -51,8 +63,8 @@ class PhotosCollectionViewController: UICollectionViewController {
             queryParams: ["query": searchText, "page": String(page), "per_page": String(15)],
             completHandler: { response in
                 if isNewPage {
-                    self.photos += response.results ?? []
-                    self.collectionView.reloadData()
+                    guard let photosResults = response.results else { return }
+                    self.renderPhotos(photosResults)
                 } else {
                     self.photos = response.results ?? []
                     self.collectionView.reloadData()
@@ -66,36 +78,9 @@ class PhotosCollectionViewController: UICollectionViewController {
         })
     }
     
-    func openImageForFullScreen(index: Int) {
+    fileprivate func openImageForFullScreen(index: Int) {
         guard let uri = photos[index].urls?.regular else { return }
-        guard let url = URL(string: uri) else { return }
-        
-        let newImageView = UIImageView()
-        newImageView.frame = UIScreen.main.bounds
-        newImageView.backgroundColor = .black
-        newImageView.contentMode = .scaleAspectFit
-        newImageView.isUserInteractionEnabled = true
-        
-        DispatchQueue.global(qos: .utility).async {
-            if let data = try? Data(contentsOf: url) {
-                DispatchQueue.main.async {
-                    newImageView.image = UIImage(data: data)
-                }
-            }
-        }
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissFullscreenImage))
-        newImageView.addGestureRecognizer(tap)
-        
-        self.view.addSubview(newImageView)
-        self.navigationController?.isNavigationBarHidden = true
-        self.tabBarController?.tabBar.isHidden = true
-    }
-    
-    @objc func dismissFullscreenImage(_ sender: UITapGestureRecognizer) {
-        self.navigationController?.isNavigationBarHidden = false
-        self.tabBarController?.tabBar.isHidden = false
-        sender.view?.removeFromSuperview()
+        ImageUtils.open(vc: self, uri: uri)
     }
     
     // MARK: - UICollectionViewDataSource, UIColectionViewDelegate
@@ -134,9 +119,13 @@ class PhotosCollectionViewController: UICollectionViewController {
         
         guard !self.photos.isEmpty, let urlKey = self.photos[indexPath.row].urls?.thumb else { return cell }
         
-        guard let data = try? Data(contentsOf: URL(string: urlKey)!) else { return cell }
-        
-        cell.photo = UIImage(data: data)
+        DispatchQueue.global(qos: .utility).async {
+            if let data = try? Data(contentsOf: URL(string: urlKey)!) {
+                DispatchQueue.main.async {
+                    cell.photo = UIImage(data: data)
+                }
+            }
+        }
         
         return cell
     }
@@ -147,8 +136,10 @@ class PhotosCollectionViewController: UICollectionViewController {
 extension PhotosCollectionViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: false, block: { (_) in
-            guard searchText != "" else { return }
+        timer = Timer.scheduledTimer(withTimeInterval: 0.43, repeats: false, block: { (_) in
+            guard searchText != "" , let lastChar = searchText.last?.description.lowercased() else { return }
+            guard "qwertyuiopasdfghjklzxcvbnm1234567890".contains(lastChar) else { return }
+            
             self.searchedText = searchText
             self.makeRequest(searchText: searchText)
         })
@@ -158,18 +149,13 @@ extension PhotosCollectionViewController: UISearchBarDelegate {
 // MARK: UICollectionViewDelegateFlowLayout
 
 extension PhotosCollectionViewController: UICollectionViewDelegateFlowLayout {
-    internal func collectionView(_: UICollectionView, layout: UICollectionViewLayout, sizeForItemAt: IndexPath) -> CGSize {
-        let ratio = CGFloat(photos[sizeForItemAt.row].width!) / (UIScreen.main.bounds.width - numberOfColumns * 8) * numberOfColumns
+    func collectionView(_: UICollectionView, layout: UICollectionViewLayout, sizeForItemAt: IndexPath) -> CGSize {
+        let ratio = CGFloat(photos[sizeForItemAt.row].width!) / (UIScreen.main.bounds.width - Settings.numberOfColumns * 8) * Settings.numberOfColumns
         let width = CGFloat(photos[sizeForItemAt.row].width!) / ratio
         let height = CGFloat(photos[sizeForItemAt.row].height!) / ratio
         
         return CGSize(width: width, height: height)
     }
-    
-    //    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-    //           return UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-    //       }
-    //
 }
 
 

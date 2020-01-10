@@ -1,13 +1,14 @@
 //
-//  RandomPhotoModel.swift
+//  Cover_photo.swift
 //  RedmadrobotTestProject
 //
-//  Created by Тимофей Забалуев on 08.01.2020.
+//  Created by Тимофей Забалуев on 09.01.2020.
 //  Copyright © 2020 Тимофей Забалуев. All rights reserved.
 //
 
 import Foundation
-struct RandomPhotoModel : Codable {
+
+struct Cover_photo : Codable {
     let id : String?
     let created_at : String?
     let updated_at : String?
@@ -22,11 +23,8 @@ struct RandomPhotoModel : Codable {
     let likes : Int?
     let liked_by_user : Bool?
     let current_user_collections : [String]?
-    let views : Int?
-    let downloads : Int?
 
     enum CodingKeys: String, CodingKey {
-
         case id = "id"
         case created_at = "created_at"
         case updated_at = "updated_at"
@@ -41,8 +39,6 @@ struct RandomPhotoModel : Codable {
         case likes = "likes"
         case liked_by_user = "liked_by_user"
         case current_user_collections = "current_user_collections"
-        case views = "views"
-        case downloads = "downloads"
     }
 
     init(from decoder: Decoder) throws {
@@ -61,8 +57,6 @@ struct RandomPhotoModel : Codable {
         likes = try values.decodeIfPresent(Int.self, forKey: .likes)
         liked_by_user = try values.decodeIfPresent(Bool.self, forKey: .liked_by_user)
         current_user_collections = try values.decodeIfPresent([String].self, forKey: .current_user_collections)
-        views = try values.decodeIfPresent(Int.self, forKey: .views)
-        downloads = try values.decodeIfPresent(Int.self, forKey: .downloads)
     }
 
 }

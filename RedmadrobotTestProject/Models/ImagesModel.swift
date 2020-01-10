@@ -38,7 +38,6 @@ struct Results : Codable {
    let description : String?
    let alt_description : String?
    let urls : Urls?
-// let links : Links?
    let categories : [String]?
    let current_user_collections : [String]?
 
@@ -53,7 +52,6 @@ struct Results : Codable {
        case description = "description"
        case alt_description = "alt_description"
        case urls = "urls"
-//     case links = "links"
        case categories = "categories"
        case current_user_collections = "current_user_collections"
    }
@@ -70,7 +68,6 @@ struct Results : Codable {
        description = try values.decodeIfPresent(String.self, forKey: .description)
        alt_description = try values.decodeIfPresent(String.self, forKey: .alt_description)
        urls = try values.decodeIfPresent(Urls.self, forKey: .urls)
-//           links = try values.decodeIfPresent(Links.self, forKey: .links)
        categories = try values.decodeIfPresent([String].self, forKey: .categories)
        current_user_collections = try values.decodeIfPresent([String].self, forKey: .current_user_collections)
    }
